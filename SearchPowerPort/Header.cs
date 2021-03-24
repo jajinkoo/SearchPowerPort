@@ -22,7 +22,7 @@ namespace SearchPowerPort
         }
 
         SerialPort pSerial;
-
+        bool m_bSearchStop;
         string[] PortName;
 
 
@@ -36,9 +36,18 @@ namespace SearchPowerPort
         }
         private void button2_Click(object sender, EventArgs e)
         {
-
+            m_bSearchStop = true;
+        }
+        private void button4_Click(object sender, EventArgs e)
+        {
+            ConnectDirectPort();
         }
 
-        
+        private void button3_Click(object sender, EventArgs e)
+        {
+            UnConnectDirectPort();
+        }
+
+
     }
 }

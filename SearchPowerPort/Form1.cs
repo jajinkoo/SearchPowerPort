@@ -18,6 +18,7 @@ namespace SearchPowerPort
         {
             InitializeComponent();
             pSerial = new SerialPort();
+           
         }
 
         private bool SearchPortAndShowDataToList()
@@ -25,6 +26,8 @@ namespace SearchPowerPort
             //리스트 박스 초기화 
             listBox_SearchPort.Items.Clear();
             listBox_Message.Items.Clear();
+
+            m_bSearchStop = false;
 
 
             // 포트 얻기 
@@ -43,6 +46,10 @@ namespace SearchPowerPort
             {
                 foreach (int nBaudRate in Enum.GetValues(typeof(BaudRate)))
                 {
+
+                    if (m_bSearchStop)
+                        return false;
+
                     //연결 시작
                     if (pSerial.IsOpen)
                     {
@@ -61,11 +68,13 @@ namespace SearchPowerPort
                         string strTemp;
                         strTemp = string.Format("{0} BaudRate {1}", Searchport, nBaudRate);
                         listBox_SearchPort.Items.Add(strTemp);
+                        listBox_Message.EndUpdate();
+
+                        pSerial.Close();
                     }
-                    Thread.Sleep(100);
-                    break;
+                    Thread.Sleep(100);              
                 }
-                break;
+ 
             }
 
 
@@ -83,6 +92,101 @@ namespace SearchPowerPort
                 return false;
 
             return true;
+        }
+        bool ConnectDirectPort()
+        {
+            int nCurrentPort = listBox_SearchPort.SelectedIndex;
+
+            String strUsingPort = "";
+            int nUsingBaudRate = -1;
+            int nTempCnt = -1;
+
+            if (PortName.Length <= 0)
+                return false;
+
+            bool bIsStop = false;
+            foreach (String Searchport in PortName)
+            {
+                foreach (int nBaudRate in Enum.GetValues(typeof(BaudRate)))
+                {
+                    strUsingPort = Searchport;
+                    nUsingBaudRate = nBaudRate;
+
+                    if (nTempCnt == nCurrentPort)
+                        bIsStop = true;
+
+                    if (bIsStop)
+                        break;
+                }
+                if (bIsStop)
+                    break;
+            }
+
+            if (nUsingBaudRate == -1 || nTempCnt == -1)
+            {
+                MessageBox.Show("Port Search Fail");
+            }
+
+            //통신 연결 
+            if (pSerial.IsOpen)
+                pSerial.Close();
+
+            pSerial.PortName = strUsingPort;
+            pSerial.BaudRate = nUsingBaudRate;
+            pSerial.DataReceived += new SerialDataReceivedEventHandler(ReceiveData); // 리시브 받을려고 생성 
+            pSerial.Open();
+
+            if (pSerial.IsOpen)
+            {
+                MessageBox.Show("Success Connect");
+            }
+            else
+            {
+                MessageBox.Show("Fail Connect");
+                return false;
+            }
+
+            return true;
+        }
+
+
+        bool UnConnectDirectPort()
+        {
+            if (pSerial.IsOpen)
+                pSerial.Close();
+
+            if (!pSerial.IsOpen)
+            {
+                MessageBox.Show("Fail Unconnect");
+                return false;
+            }
+            return true;
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            if (pSerial.IsOpen)
+            {
+                pSerial.Write(textBox1.Text);
+            }
+            else
+            {
+                MessageBox.Show("Do not open the port");
+            }
+        }
+
+        private void ReceiveData(object sender, SerialDataReceivedEventArgs e)
+        {
+            this.Invoke(new EventHandler(MyReceived));
+        }
+
+        private void MyReceived(object s, EventArgs e)
+        {
+            String strData = pSerial.ReadExisting();
+            strData = string.Format("{0:X2}", strData);
+
+            listBox_Message.Items.Add(strData);
+
         }
     }
 }
