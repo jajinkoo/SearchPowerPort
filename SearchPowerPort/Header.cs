@@ -6,6 +6,16 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO.Ports;
 
+
+
+
+/// <summary>
+/// 프로그램 내용 
+/// 시스템에 사용중이 port를 차례대로 돌면서 사용할 포트를 찾고 리스트 업한다. 
+/// 개별 포트로 연결 후 command전달하고 받을수 있다. 
+/// 
+/// </summary>
+
 namespace SearchPowerPort
 {
 
