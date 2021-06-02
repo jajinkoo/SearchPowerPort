@@ -17,8 +17,7 @@ namespace SearchPowerPort
         public Form1()
         {
             InitializeComponent();
-            pSerial = new SerialPort();
-           
+            pSerial = new SerialPort();        
         }
 
         private bool SearchPortAndShowDataToList()
@@ -76,8 +75,6 @@ namespace SearchPowerPort
                 }
  
             }
-
-
 
             return true;
         }
