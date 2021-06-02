@@ -13,6 +13,7 @@ using System.Threading;
 namespace SearchPowerPort
 {
     //test
+    //iam slave
     public partial class Form1 : Form
     {
         public Form1()
